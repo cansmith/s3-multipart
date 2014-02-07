@@ -4,6 +4,8 @@ import urlparse
 import boto
 import sys
 
+from boto.s3.connection import OrdinaryCallingFormat
+
 parser = argparse.ArgumentParser(description="View or remove incomplete S3 multipart uploads",
         prog="s3-mp-cleanup")
 parser.add_argument("uri", type=str, help="The S3 URI to operate on")
@@ -15,7 +17,10 @@ def main(uri, cancel):
     if split_rs.scheme != "s3":
         raise ValueError("'%s' is not an S3 url" % uri)
 
-    s3 = boto.connect_s3()
+    if True in map(str.isupper, split_rs.netloc):
+        s3 = boto.connect_s3(calling_format=OrdinaryCallingFormat())
+    else:
+        s3 = boto.connect_s3()
     bucket = s3.lookup(split_rs.netloc)
     
     mpul = bucket.list_multipart_uploads()

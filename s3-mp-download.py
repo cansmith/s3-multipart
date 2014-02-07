@@ -45,7 +45,10 @@ def do_part_download(args):
                  chunk size, and part number
     """
     bucket_name, key_name, fname, min_byte, max_byte, split, secure, max_tries, current_tries = args
-    conn = boto.connect_s3()
+    if True in map(str.isupper, bucket_name):
+        conn = boto.connect_s3(calling_format=OrdinaryCallingFormat())
+    else:
+        conn = boto.connect_s3()
     conn.is_secure = secure
 
     # Make the S3 request
@@ -106,7 +109,10 @@ def main(src, dest, num_processes=2, split=32, force=False, verbose=False, quiet
                              " overwrite" % dest)
 
     # Split out the bucket and the key
-    s3 = boto.connect_s3()
+    if True in map(str.isupper, split_rs.netloc):
+        s3 = boto.connect_s3(calling_format=OrdinaryCallingFormat())
+    else:
+        s3 = boto.connect_s3()
     s3.is_secure = secure
     logger.debug("split_rs: %s" % str(split_rs))
     bucket = s3.lookup(split_rs.netloc)
